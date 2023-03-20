@@ -12,6 +12,7 @@ using namespace std;
 
 struct dataStorage {
 	int id = 0;
+	int userId;
 	string phoneNumber, name, surname, address, email;
 };
 
@@ -148,19 +149,23 @@ void saveInToFile(vector <dataStorage> contacts) {
 	}
 	file.close();
 }
-void loadFromFile(vector <dataStorage>& contacts) {
+void loadFromFile(vector <dataStorage>& contacts, int currentUserId) {
 	fstream file;
 	file.open("ksiazkaAdresowa.txt", ios::in);
-	string line, untilStopSign;
+	string line;
 	dataStorage data;
 	while (getline(file, line, '|')) {
 		data.id = atoi(line.c_str());
+		getline(file, line, '|');
+		data.userId = atoi(line.c_str());
 		getline(file, data.name, '|');
 		getline(file, data.surname, '|');
 		getline(file, data.phoneNumber, '|');
 		getline(file, data.email, '|');
 		getline(file, data.address, '|');
-		contacts.push_back(dataStorage(data));
+		if (currentUserId == data.userId) 
+			contacts.push_back(dataStorage(data));
+
 	}
 }
 char getOneChar() {
@@ -260,7 +265,7 @@ void editRecordSequence(vector <dataStorage>& contacts) {
 int main() {
 	vector <dataStorage> contacts;
 	char menuChoice;
-	loadFromFile(contacts);
+	loadFromFile(contacts,1);
 	while (1) {
 		system("cls");
 		displayMenu();
@@ -281,13 +286,14 @@ int main() {
 			break;
 		case '5':
 			removeRecordSequence(contacts);
+			saveInToFile(contacts);
 			break;
 		case '6':
 			editRecordSequence(contacts);
 			saveInToFile(contacts);
 			break;
 		case '9':
-			saveInToFile(contacts);
+			//saveInToFile(contacts);
 			exit(0);
 		default:
 			break;
