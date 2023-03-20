@@ -80,18 +80,36 @@ dataStorage dataGathering() {
 	cout << endl;
 	return data;
 }
+
+int readLastId() {
+	fstream file;
+	file.open("ksiazkaAdresowa.txt", ios::in);
+	if(!file.good())
+		return 1;
+	string line;
+	dataStorage data;
+	if (file.peek() == std::ifstream::traits_type::eof())
+		return 1;
+	while (getline(file, line, '|')) {
+		
+		data.id = atoi(line.c_str());
+		getline(file, line, '|');
+		data.userId = atoi(line.c_str());
+		getline(file, data.name, '|');
+		getline(file, data.surname, '|');
+		getline(file, data.phoneNumber, '|');
+		getline(file, data.email, '|');
+		getline(file, data.address, '|');
+	}
+	return data.id+1;
+}
 void insertNewRecord(vector <dataStorage>& contacts) {
 	dataStorage data;
 
 	data = dataGathering();
-
-	if (contacts.empty())
-		data.id = 1;
-	else
-		data.id = contacts.back().id + 1;
+	data.id = readLastId();
 
 	contacts.push_back(data);
-
 }
 void displayRecordByName(vector <dataStorage> contacts) {
 	if (checkIfEmpty(contacts))
@@ -136,7 +154,7 @@ void displayAllRecords(vector <dataStorage> contacts) {
 }
 void saveInToFile(vector <dataStorage> contacts) {
 	fstream file;
-	file.open("ksiazkaAdresowa.txt", ios::out | ios::trunc);
+	file.open("ksiazkaAdresowa_temp.txt", ios::out | ios::trunc);
 	for (auto i = contacts.begin(); i < contacts.end(); i++) {
 		file << i->id << '|';
 		file << i->name << '|';
@@ -149,6 +167,7 @@ void saveInToFile(vector <dataStorage> contacts) {
 	}
 	file.close();
 }
+
 void loadFromFile(vector <dataStorage>& contacts, int currentUserId) {
 	fstream file;
 	file.open("ksiazkaAdresowa.txt", ios::in);
@@ -265,7 +284,7 @@ void editRecordSequence(vector <dataStorage>& contacts) {
 int main() {
 	vector <dataStorage> contacts;
 	char menuChoice;
-	loadFromFile(contacts,1);
+	loadFromFile(contacts,3);
 	while (1) {
 		system("cls");
 		displayMenu();
