@@ -56,7 +56,7 @@ bool checkIfEmpty(vector <dataStorage> contacts) {
 	return false;
 }
 
-string getHoleLine() {
+string getWholeLine() {
 	string line;
 	//cin.ignore();
 	getline(cin, line);
@@ -67,15 +67,15 @@ dataStorage dataGathering() {
 	dataStorage data;
 
 	cout << "Podaj imie: ";
-	data.name = getHoleLine();
+	data.name = getWholeLine();
 	cout << "Podaj nazwisko: ";
-	data.surname = getHoleLine();
+	data.surname = getWholeLine();
 	cout << "Podaj nr. tel ";
-	data.phoneNumber = getHoleLine();
+	data.phoneNumber = getWholeLine();
 	cout << "Podaj email: ";
-	data.email = getHoleLine();
+	data.email = getWholeLine();
 	cout << "Podaj adres: ";
-	data.address = getHoleLine();
+	data.address = getWholeLine();
 	cout << endl;
 	return data;
 }
@@ -133,7 +133,7 @@ void displayAllRecords(vector <dataStorage> contacts) {
 	}
 	displayHoldMesage();
 }
-void safeInToFile(vector <dataStorage> contacts) {
+void saveInToFile(vector <dataStorage> contacts) {
 	fstream file;
 	file.open("ksiazkaAdresowa.txt", ios::out | ios::trunc);
 	for (auto i = contacts.begin(); i < contacts.end(); i++) {
@@ -217,19 +217,19 @@ void editRecord(vector <dataStorage>& contacts, vector <dataStorage>::iterator c
 		editChoice = getOneChar();
 		switch (editChoice) {
 		case '1':
-			contactToEdit->name = getHoleLine();
+			contactToEdit->name = getWholeLine();
 			break;
 		case '2':
-			contactToEdit->surname = getHoleLine();
+			contactToEdit->surname = getWholeLine();
 			break;
 		case '3':
-			contactToEdit->phoneNumber = getHoleLine();
+			contactToEdit->phoneNumber = getWholeLine();
 			break;
 		case '4':
-			contactToEdit->email = getHoleLine();
+			contactToEdit->email = getWholeLine();
 			break;
 		case '5':
-			contactToEdit->address = getHoleLine();
+			contactToEdit->address = getWholeLine();
 			break;
 		case '6':
 			return;
@@ -268,7 +268,7 @@ int main() {
 		switch (menuChoice) {
 		case '1':
 			insertNewRecord(contacts);
-			safeInToFile(contacts);
+			saveInToFile(contacts);
 			break;
 		case '2':
 			displayRecordByName(contacts);
@@ -284,10 +284,10 @@ int main() {
 			break;
 		case '6':
 			editRecordSequence(contacts);
-			safeInToFile(contacts);
+			saveInToFile(contacts);
 			break;
 		case '9':
-			safeInToFile(contacts);
+			saveInToFile(contacts);
 			exit(0);
 		default:
 			break;
