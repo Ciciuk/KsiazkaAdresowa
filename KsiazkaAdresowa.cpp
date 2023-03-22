@@ -98,9 +98,9 @@ bool checkPassword(vector <userStorage>::iterator i) {
 	return false;
 }
 void changePassword(vector <userStorage>& users, int actualUser) {
-	
+
 	vector <userStorage>::iterator i;
-	i = find_if(users.begin(), users.end(), [actualUser](const userStorage& vi){return vi.userId == actualUser; });
+	i = find_if(users.begin(), users.end(), [actualUser](const userStorage& vi) {return vi.userId == actualUser; });
 	cout << "Podaj nowe haslo: ";
 	i->userPassword = getHoleLine();
 	fstream file;
@@ -120,7 +120,7 @@ int checkPaswordAndReturnUserId(vector <userStorage> users) {
 	userStorage data;
 	if (checkIfEmptyUsers(users))
 		return 0;
-	cout << "Podaj login:  "<< endl;
+	cout << "Podaj login:  " << endl;
 	data.userName = getHoleLine();
 
 	for (vector <userStorage>::iterator i = users.begin(); i < users.end(); i++) {
@@ -165,12 +165,12 @@ contactStorage contactDataGathering() {
 int readLastContactId() {
 	fstream file;
 	file.open("adresaci.txt", ios::in);
-	if(!file.good())
+	if (!file.good())
 		return 1;
 	string line;
 	contactStorage data;
 	if (file.peek() == std::ifstream::traits_type::eof())
-	 return 1;
+		return 1;
 	while (getline(file, line, '|')) {
 		if (line == "\n")
 			break;
@@ -183,7 +183,7 @@ int readLastContactId() {
 		getline(file, data.email, '|');
 		getline(file, data.address, '|');
 	}
-	return data.id+1;
+	return data.id + 1;
 	file.close();
 }
 int readLastUserId() {
@@ -339,7 +339,7 @@ void displayAllContact(vector <contactStorage> contacts) {
 	}
 	displayHoldMesage();
 }
-contactStorage extractingData(string line) 	{
+contactStorage extractingData(string line) {
 	stringstream ss(line);
 	string temp;
 	contactStorage data;
@@ -361,22 +361,22 @@ void saveOneRow(contactStorage data) {
 	file.close();
 }
 void saveInToFile(vector <contactStorage> contacts, int currentUserId) {
-	fstream input,output;
+	fstream input, output;
 	input.open("adresaci.txt", ios::in);
 	output.open("adresaci_temp.txt", ios::out | ios::trunc);
 	output.close();
 	string line;
 	contactStorage dataFromExistingLibrary;
 	int i = 0;
-	while (getline(input, line)){
-		dataFromExistingLibrary =extractingData(line);
+	while (getline(input, line)) {
+		dataFromExistingLibrary = extractingData(line);
 
 		if (currentUserId == dataFromExistingLibrary.userId && dataFromExistingLibrary.id == contacts[i].id) {
 			saveOneRow(contacts[i]);
 			i++;
 		}
-			
-		else if(currentUserId != dataFromExistingLibrary.userId)
+
+		else if (currentUserId != dataFromExistingLibrary.userId)
 			saveOneRow(dataFromExistingLibrary);
 	}
 	input.close();
@@ -557,22 +557,7 @@ int main() {
 			break;
 		case '2':
 			insertNewUser(users);
-//			displayContactByName(contacts);
 			break;
-		//case '3':
-		//	displayContactBySurname(contacts);
-		//	break;
-		//case '4':
-		//	displayAllContact(contacts);
-		//	break;
-		//case '5':
-		//	removeContactSequence(contacts);
-		//	saveInToFile(contacts, userID);
-		//	break;
-		//case '6':
-		//	editContactSequence(contacts);
-		//	saveInToFile(contacts, userID);
-		//	break;
 		case '9':
 			exit(0);
 		default:
