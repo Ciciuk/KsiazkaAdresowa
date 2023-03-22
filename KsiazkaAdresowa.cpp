@@ -12,31 +12,42 @@
 
 using namespace std;
 
-struct dataStorage {
+struct contactStorage {
 	int id = 0;
 	int userId = 0;
 	string phoneNumber, name, surname, address, email;
 };
 
+struct userStorage {
+	int userId = 0;
+	string userName, userPassword;
+};
 
-void displayMenu() {
+void displayMainlMenu() {
+	cout << "1. Logowanie" << endl;
+	cout << "2. Rejestracja" << endl;
+	cout << "9. Wyjdz" << endl;
+}
+
+void displayInternalMenu() {
 	cout << "1. Dodaj adresata" << endl;
 	cout << "2. Wyszukaj po imieniu" << endl;
 	cout << "3. Wyszukaj po nazwisku" << endl;
 	cout << "4. Wyswietl wszystkich adresatow" << endl;
 	cout << "5. Usun adresata" << endl;
 	cout << "6. Edytuj adresata" << endl;
-	cout << "9. Wyjdz" << endl;
+	cout << "7. Zmien haslo" << endl;
+	cout << "9. Wyloguj sie" << endl;
 }
 void displayEditMenu() {
 	cout << "1. Edytuj imie" << endl;
 	cout << "2. Edytuj nazwisko" << endl;
 	cout << "3. Edytuj numer telefonu" << endl;
-	cout << "4. Edytuj adres email" << endl;
+	cout << "4. Edytuj adres e-mail" << endl;
 	cout << "5. Edytuj adres zamieszkania" << endl;
 	cout << "6. Wyjdz" << endl;
 }
-void displayRecord(vector <dataStorage>::iterator placeInStructureToDisplay) {
+void displayRecord(vector <contactStorage>::iterator placeInStructureToDisplay) {
 	cout << left << setw(20) << "ID:" << placeInStructureToDisplay->id << endl;
 	cout << left << setw(20) << "Imie:" << placeInStructureToDisplay->name << endl;
 	cout << left << setw(20) << "Nazwisko:" << placeInStructureToDisplay->surname << endl;
@@ -46,12 +57,86 @@ void displayRecord(vector <dataStorage>::iterator placeInStructureToDisplay) {
 	cout << endl;
 }
 void displayHoldMesage() {
-	//cout << "Nacisnij dowolny klawisz zeby kontynuowac ";
-	//getchar();
 	system("pause");
 }
 
-bool checkIfEmpty(vector <dataStorage> contacts) {
+string getHoleLine() {
+	string line;
+	getline(cin, line);
+	return line;
+}
+
+bool checkIfEmptyUsers(vector <userStorage> users) {
+	if (users.empty()) {
+		cout << "Brak zarejestrowanych uzytkownikow ";
+		displayHoldMesage();
+		return true;
+	}
+	return false;
+}
+
+bool checkPassword(vector <userStorage>::iterator i) {
+	string password;
+
+	for (int j = 3; j > 0; j--) {
+		cout << "Pozostalo Ci: " << j << " prob" << endl;
+		cout << "Podaj haslo: " << endl;
+		password = getHoleLine();
+		if (password == i->userPassword) {
+			cout << "Gratuluje, poprawne haslo" << endl;
+			displayHoldMesage();
+			return true;
+		}
+		else {
+			cout << "Nieprawidlowe haslo" << endl;
+			cout << endl;
+			displayHoldMesage();
+		}
+	}
+	cout << "Wykorzystano wszystkie proby, nastapi przekierowanie na ekran glowny" << endl;
+	displayHoldMesage();
+	return false;
+}
+void changePassword(vector <userStorage>& users, int actualUser) {
+	
+	vector <userStorage>::iterator i;
+	i = find_if(users.begin(), users.end(), [actualUser](const userStorage& vi){return vi.userId == actualUser; });
+	cout << "Podaj nowe haslo: ";
+	i->userPassword = getHoleLine();
+	fstream file;
+	file.open("uzytkownicy.txt", ios::out | ios::trunc);
+	for (auto i = users.begin(); i < users.end(); i++) {
+		file << i->userId << '|';
+		file << i->userName << '|';
+		file << i->userPassword << '|';
+		file << endl;
+	}
+	file.close();
+	cout << "Haslo zostalo zmienione: ";
+}
+
+int checkPaswordAndReturnUserId(vector <userStorage> users) {
+	system("cls");
+	userStorage data;
+	if (checkIfEmptyUsers(users))
+		return 0;
+	cout << "Podaj login:  "<< endl;
+	data.userName = getHoleLine();
+
+	for (vector <userStorage>::iterator i = users.begin(); i < users.end(); i++) {
+		if (data.userName == i->userName)
+			if (checkPassword(i))
+				return i->userId;
+			else
+				break;
+	}
+	cout << "Brak loginu w bazie danych:  ";
+	displayHoldMesage();
+	return 0;
+}
+
+
+bool checkIfEmptyContacts(vector <contactStorage> contacts) {
 	if (contacts.empty()) {
 		cout << "Brak kontaktow ";
 		displayHoldMesage();
@@ -60,15 +145,8 @@ bool checkIfEmpty(vector <dataStorage> contacts) {
 	return false;
 }
 
-string getHoleLine() {
-	string line;
-	//cin.ignore();
-	getline(cin, line);
-	return line;
-}
-
-dataStorage dataGathering() {
-	dataStorage data;
+contactStorage contactDataGathering() {
+	contactStorage data;
 
 	cout << "Podaj imie: ";
 	data.name = getHoleLine();
@@ -76,7 +154,7 @@ dataStorage dataGathering() {
 	data.surname = getHoleLine();
 	cout << "Podaj nr. tel ";
 	data.phoneNumber = getHoleLine();
-	cout << "Podaj email: ";
+	cout << "Podaj e-mail: ";
 	data.email = getHoleLine();
 	cout << "Podaj adres: ";
 	data.address = getHoleLine();
@@ -84,14 +162,13 @@ dataStorage dataGathering() {
 	return data;
 }
 
-
-int readLastId() {
+int readLastContactId() {
 	fstream file;
-	file.open("ksiazkaAdresowa.txt", ios::in);
+	file.open("adresaci.txt", ios::in);
 	if(!file.good())
 		return 1;
 	string line;
-	dataStorage data;
+	contactStorage data;
 	if (file.peek() == std::ifstream::traits_type::eof())
 	 return 1;
 	while (getline(file, line, '|')) {
@@ -109,11 +186,79 @@ int readLastId() {
 	return data.id+1;
 	file.close();
 }
-void loadFromFile(vector <dataStorage>& contacts, int currentUserId) {
+int readLastUserId() {
 	fstream file;
-	file.open("ksiazkaAdresowa.txt", ios::in);
+	file.open("uzytkownicy.txt", ios::in);
+	if (!file.good())
+		return 1;
 	string line;
-	dataStorage data;
+	userStorage data;
+	if (file.peek() == std::ifstream::traits_type::eof())
+		return 1;
+	while (getline(file, line, '|')) {
+		if (line == "\n")
+			break;
+		data.userId = atoi(line.c_str());
+		getline(file, data.userName, '|');
+		getline(file, data.userPassword, '|');
+	}
+	return data.userId + 1;
+	file.close();
+}
+userStorage userDataGathering() {
+	userStorage data;
+
+	cout << "Podaj login: ";
+	data.userName = getHoleLine();
+	cout << "Podaj haslo: ";
+	data.userPassword = getHoleLine();
+	cout << endl;
+	return data;
+}
+
+void loadUsersFromFile(vector <userStorage>& users) {
+	fstream file;
+	file.open("uzytkownicy.txt", ios::in);
+	string line;
+	userStorage data;
+	while (getline(file, line, '|')) {
+		if (line == "\n")
+			break;
+		data.userId = atoi(line.c_str());
+		getline(file, data.userName, '|');
+		getline(file, data.userPassword, '|');
+		users.push_back(userStorage(data));
+	}
+	file.close();
+}
+string mergeUserLine(userStorage data) {
+	string line = "";
+	line += to_string(data.userId) + '|';
+	line += data.userName + '|';
+	line += data.userPassword + '|';
+	return line;
+}
+void saveNewUser(userStorage newUser) {
+	fstream file;
+	file.open("uzytkownicy.txt", ios::out | ios::app);
+	file << mergeUserLine(newUser) << endl;
+	file.close();
+}
+void insertNewUser(vector <userStorage>& users) {
+	userStorage data;
+	data = userDataGathering();
+	if (users.empty())
+		data.userId = 1;
+	else
+		data.userId = users.back().userId + 1;
+	users.push_back(data);
+	saveNewUser(data);
+}
+void loadContactsFromFile(vector <contactStorage>& contacts, int currentUserId) {
+	fstream file;
+	file.open("adresaci.txt", ios::in);
+	string line;
+	contactStorage data;
 	while (getline(file, line, '|')) {
 		data.id = atoi(line.c_str());
 		getline(file, line, '|');
@@ -124,12 +269,13 @@ void loadFromFile(vector <dataStorage>& contacts, int currentUserId) {
 		getline(file, data.email, '|');
 		getline(file, data.address, '|');
 		if (currentUserId == data.userId)
-			contacts.push_back(dataStorage(data));
+			contacts.push_back(contactStorage(data));
 
 	}
 	file.close();
 }
-string mergeLine(dataStorage data) {
+
+string mergeContactLine(contactStorage data) {
 	string line = "";
 	line += to_string(data.id) + '|';
 	line += to_string(data.userId) + '|';
@@ -140,63 +286,63 @@ string mergeLine(dataStorage data) {
 	line += data.address + '|';
 	return line;
 }
-void saveNewContact(dataStorage newContact) {
+void saveNewContact(contactStorage newContact) {
 	fstream file;
-	file.open("ksiazkaAdresowa.txt", ios::out | ios::app);
-	file << mergeLine(newContact) << endl;
+	file.open("adresaci.txt", ios::out | ios::app);
+	file << mergeContactLine(newContact) << endl;
 	file.close();
 }
-void insertNewRecord(vector <dataStorage>& contacts, int userId) {
-	dataStorage data;
+void insertNewContact(vector <contactStorage>& contacts, int userId) {
+	contactStorage data;
 
-	data = dataGathering();
-	data.id = readLastId();
+	data = contactDataGathering();
+	data.id = readLastContactId();
 	data.userId = userId;
 	contacts.push_back(data);
 	saveNewContact(data);
 }
-void displayRecordByName(vector <dataStorage> contacts) {
-	if (checkIfEmpty(contacts))
+void displayContactByName(vector <contactStorage> contacts) {
+	if (checkIfEmptyContacts(contacts))
 		return;
 	string searchingName;
 	cout << "Podaj Imie ktore chcesz wyszukac: ";
 	cin >> searchingName;
 	system("cls");
 
-	for (vector <dataStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
+	for (vector <contactStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
 		if (i->name == searchingName)
 			displayRecord(i);
 	}
 	displayHoldMesage();
 }
-void displayRecordBySurname(vector <dataStorage> contacts) {
-	if (checkIfEmpty(contacts))
+void displayContactBySurname(vector <contactStorage> contacts) {
+	if (checkIfEmptyContacts(contacts))
 		return;
 	string searchingSurname;
 	cout << "Podaj Nazwisko ktore chcesz wyszukac: ";
 	cin >> searchingSurname;
 	system("cls");
 
-	for (vector <dataStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
+	for (vector <contactStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
 		if (i->surname == searchingSurname)
 			displayRecord(i);
 	}
 	displayHoldMesage();
 }
-void displayAllRecords(vector <dataStorage> contacts) {
-	if (checkIfEmpty(contacts))
+void displayAllContact(vector <contactStorage> contacts) {
+	if (checkIfEmptyContacts(contacts))
 		return;
 	system("cls");
 
-	for (vector <dataStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
+	for (vector <contactStorage>::iterator i = contacts.begin(); i < contacts.end(); i++) {
 		displayRecord(i);
 	}
 	displayHoldMesage();
 }
-dataStorage extractingData(string line) 	{
+contactStorage extractingData(string line) 	{
 	stringstream ss(line);
 	string temp;
-	dataStorage data;
+	contactStorage data;
 	getline(ss, temp, '|');
 	data.id = atoi(temp.c_str());
 	getline(ss, temp, '|');
@@ -208,19 +354,19 @@ dataStorage extractingData(string line) 	{
 	getline(ss, data.address, '|');
 	return data;
 }
-void saveOneRow(dataStorage data) {
+void saveOneRow(contactStorage data) {
 	fstream file;
-	file.open("ksiazkaAdresowa_temp.txt", ios::out | ios::app);
-	file << mergeLine(data) << endl;
+	file.open("adresaci_temp.txt", ios::out | ios::app);
+	file << mergeContactLine(data) << endl;
 	file.close();
 }
-void saveInToFile(vector <dataStorage> contacts, int currentUserId) {
+void saveInToFile(vector <contactStorage> contacts, int currentUserId) {
 	fstream input,output;
-	input.open("ksiazkaAdresowa.txt", ios::in);
-	output.open("ksiazkaAdresowa_temp.txt", ios::out | ios::trunc);
+	input.open("adresaci.txt", ios::in);
+	output.open("adresaci_temp.txt", ios::out | ios::trunc);
 	output.close();
 	string line;
-	dataStorage dataFromExistingLibrary;
+	contactStorage dataFromExistingLibrary;
 	int i = 0;
 	while (getline(input, line)){
 		dataFromExistingLibrary =extractingData(line);
@@ -234,15 +380,15 @@ void saveInToFile(vector <dataStorage> contacts, int currentUserId) {
 			saveOneRow(dataFromExistingLibrary);
 	}
 	input.close();
-	remove("ksiazkaAdresowa.txt");
-	bool temp = rename("ksiazkaAdresowa_temp.txt", "ksiazkaAdresowa.txt");
+	remove("adresaci.txt");
+	bool temp = rename("adresaci_temp.txt", "adresaci.txt");
 
 }
 
 
-void saveInToFile1(vector <dataStorage> contacts) {
+void saveInToFile1(vector <contactStorage> contacts) {
 	fstream file;
-	file.open("ksiazkaAdresowa_temp.txt", ios::out | ios::trunc);
+	file.open("adresaci_temp.txt", ios::out | ios::trunc);
 	for (auto i = contacts.begin(); i < contacts.end(); i++) {
 		file << i->id << '|';
 		file << i->id << '|';
@@ -275,16 +421,16 @@ char getOneChar() {
 int getId() {
 	return int(getOneChar() - '0');
 }
-void removeRecordSequence(vector <dataStorage>& contacts) {
-	if (checkIfEmpty(contacts))
+void removeContactSequence(vector <contactStorage>& contacts) {
+	if (checkIfEmptyContacts(contacts))
 		return;
-	displayAllRecords(contacts);
+	displayAllContact(contacts);
 	cout << endl;
 	cout << "Podaj ID kontaktu ktory chcesz usunac: ";
 	int idToDelete = getId();
 	system("cls");
-	vector <dataStorage>::iterator contactToRemove;
-	contactToRemove = find_if(contacts.begin(), contacts.end(), [idToDelete](const dataStorage& vi) //you want to compare an item
+	vector <contactStorage>::iterator contactToRemove;
+	contactToRemove = find_if(contacts.begin(), contacts.end(), [idToDelete](const contactStorage& vi) //you want to compare an item
 		{return vi.id == idToDelete; });
 	if (contactToRemove == contacts.end()) {
 		cout << "Nie znaleziono takiego ID ";
@@ -302,7 +448,7 @@ void removeRecordSequence(vector <dataStorage>& contacts) {
 	}
 
 }
-void editRecord(vector <dataStorage>& contacts, vector <dataStorage>::iterator contactToEdit) {
+void editRecord(vector <contactStorage>& contacts, vector <contactStorage>::iterator contactToEdit) {
 	char editChoice;
 	while (1) {
 		system("cls");
@@ -338,16 +484,16 @@ void editRecord(vector <dataStorage>& contacts, vector <dataStorage>::iterator c
 		}
 	}
 }
-void editRecordSequence(vector <dataStorage>& contacts) {
-	if (checkIfEmpty(contacts))
+void editContactSequence(vector <contactStorage>& contacts) {
+	if (checkIfEmptyContacts(contacts))
 		return;
-	displayAllRecords(contacts);
+	displayAllContact(contacts);
 	cout << endl;
 	cout << "Podaj ID kontaktu ktory chcesz edytowac: ";
 	int idToEdit = getId();
 	system("cls");
-	vector <dataStorage>::iterator contactToEdit;
-	contactToEdit = find_if(contacts.begin(), contacts.end(), [idToEdit](const dataStorage& vi) {return vi.id == idToEdit; });
+	vector <contactStorage>::iterator contactToEdit;
+	contactToEdit = find_if(contacts.begin(), contacts.end(), [idToEdit](const contactStorage& vi) {return vi.id == idToEdit; });
 	if (contactToEdit == contacts.end()) {
 		cout << "Nie znaleziono takiego ID ";
 		displayHoldMesage();
@@ -356,36 +502,77 @@ void editRecordSequence(vector <dataStorage>& contacts) {
 	editRecord(contacts, contactToEdit);
 }
 
-int main() {
-	vector <dataStorage> contacts;
+void internalMenu(vector <userStorage>& users, int userId) {
+	vector <contactStorage> contacts;
 	char menuChoice;
-	int userID = 2;
-	loadFromFile(contacts, userID);
+	if (userId == 0)
+		return;
+	loadContactsFromFile(contacts, userId);
 	while (1) {
 		system("cls");
-		displayMenu();
+		displayInternalMenu();
 		menuChoice = getOneChar();
 		switch (menuChoice) {
 		case '1':
-			insertNewRecord(contacts, userID);
+			insertNewContact(contacts, userId);
 			break;
 		case '2':
-			displayRecordByName(contacts);
+			displayContactByName(contacts);
 			break;
 		case '3':
-			displayRecordBySurname(contacts);
+			displayContactBySurname(contacts);
 			break;
 		case '4':
-			displayAllRecords(contacts);
+			displayAllContact(contacts);
 			break;
 		case '5':
-			removeRecordSequence(contacts);
-			saveInToFile(contacts, userID);
+			removeContactSequence(contacts);
+			saveInToFile(contacts, userId);
 			break;
 		case '6':
-			editRecordSequence(contacts);
-			saveInToFile(contacts, userID);
+			editContactSequence(contacts);
+			saveInToFile(contacts, userId);
 			break;
+		case '7':
+			changePassword(users, userId);
+			break;
+		case '9':
+			return;
+		default:
+			break;
+		}
+	}
+}
+int main() {
+	vector <userStorage> users;
+	char menuChoice;
+	loadUsersFromFile(users);
+	while (1) {
+		system("cls");
+		displayMainlMenu();
+		menuChoice = getOneChar();
+		switch (menuChoice) {
+		case '1':
+			internalMenu(users, checkPaswordAndReturnUserId(users));
+			break;
+		case '2':
+			insertNewUser(users);
+//			displayContactByName(contacts);
+			break;
+		//case '3':
+		//	displayContactBySurname(contacts);
+		//	break;
+		//case '4':
+		//	displayAllContact(contacts);
+		//	break;
+		//case '5':
+		//	removeContactSequence(contacts);
+		//	saveInToFile(contacts, userID);
+		//	break;
+		//case '6':
+		//	editContactSequence(contacts);
+		//	saveInToFile(contacts, userID);
+		//	break;
 		case '9':
 			exit(0);
 		default:
