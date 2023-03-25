@@ -349,7 +349,7 @@ void displayContactBySurname(vector <ContactStorage> contacts) {
 	system("pause");;
 }
 
-void displayAllContact(vector <ContactStorage> contacts) {
+void displayAllContacts(vector <ContactStorage> contacts) {
 	if (checkIfEmptyContacts(contacts))
 		return;
 
@@ -462,7 +462,7 @@ void removeContactSequence(vector <ContactStorage>& contacts) {
 	if (checkIfEmptyContacts(contacts))
 		return;
 
-	displayAllContact(contacts);
+	displayAllContacts(contacts);
 	cout << endl;
 	cout << "Podaj ID kontaktu ktory chcesz usunac: ";
 	idToDelete = getId();
@@ -489,7 +489,7 @@ void removeContactSequence(vector <ContactStorage>& contacts) {
 	return;
 }
 
-void editRecordMenu(vector <ContactStorage>& contacts, vector <ContactStorage>::iterator contactToEdit) {
+void editRecordMenu(vector <ContactStorage>::iterator& contactToEdit) {
 	char editChoice;
 
 	while (1) {
@@ -534,7 +534,7 @@ void editContactSequence(vector <ContactStorage>& contacts) {
 	if (checkIfEmptyContacts(contacts))
 		return;
 
-	displayAllContact(contacts);
+	displayAllContacts(contacts);
 	cout << endl;
 	cout << "Podaj ID kontaktu ktory chcesz edytowac: ";
 	idToEdit = getId();
@@ -548,7 +548,7 @@ void editContactSequence(vector <ContactStorage>& contacts) {
 		return;
 	}
 
-	editRecordMenu(contacts, contactToEdit);
+	editRecordMenu(contactToEdit);
 	saveToFileAfterContactEdit(contactToEdit);
 }
 
@@ -577,7 +577,7 @@ void internalMenu(vector <UserStorage>& users, int userId) {
 			displayContactBySurname(contacts);
 			break;
 		case '4':
-			displayAllContact(contacts);
+			displayAllContacts(contacts);
 			break;
 		case '5':
 			removeContactSequence(contacts);
