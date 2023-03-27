@@ -108,7 +108,7 @@ int checkLastId(int a, int b) {
 }
 
 void changePassword(vector <UserStorage>& users, int actualUser) {
-	vector <UserStorage>::iterator i = find_if(users.begin(), users.end(), [actualUser](const UserStorage& vi) {return vi.userId == actualUser; });//wyrazenie lambda
+	vector <UserStorage>::iterator i = find_if(users.begin(), users.end(), [actualUser](const UserStorage& vi) {return vi.userId == actualUser; });//wyrazenie lambda przeszukuje vector users i zwraca iterator do pozycji ktorej userId jest równy actualUser
 	fstream file;
 
 	cout << "Podaj nowe haslo: ";
@@ -267,7 +267,7 @@ int loadContactsFromFile(vector <ContactStorage>& contacts, int currentUserId) {
 		if (currentUserId == data.userId)
 			contacts.push_back(ContactStorage(data));
 		else
-			lastIdFromNotLoadedContact = data.id;
+			lastIdFromNotLoadedContact = data.id; // zapisze ID ostatniego kontaktu którego nie wczytujemy do wektora
 	}
 
 	file.close();
@@ -468,7 +468,7 @@ void removeContactSequence(vector <ContactStorage>& contacts) {
 	idToDelete = getId();
 
 	system("cls");
-	contactToRemove = find_if(contacts.begin(), contacts.end(), [idToDelete](const ContactStorage& vi) {return vi.id == idToDelete; });
+	contactToRemove = find_if(contacts.begin(), contacts.end(), [idToDelete](const ContactStorage& vi) {return vi.id == idToDelete; });//wyrazenie lambda  - przeszukuje wektor contact i zwraca iterator do pozycji ktorej id jest rowne idToDelete 
 	if (contactToRemove == contacts.end()) {
 		cout << "Nie znaleziono takiego ID ";
 		system("pause");;
@@ -540,7 +540,7 @@ void editContactSequence(vector <ContactStorage>& contacts) {
 	idToEdit = getId();
 	system("cls");
 
-	contactToEdit = find_if(contacts.begin(), contacts.end(), [idToEdit](const ContactStorage& vi) {return vi.id == idToEdit; });//wyrazenie lambda
+	contactToEdit = find_if(contacts.begin(), contacts.end(), [idToEdit](const ContactStorage& vi) {return vi.id == idToEdit; });////wyrazenie lambda  - przeszukuje wektor contact i zwraca iterator do pozycji ktorej id jest rowne idToEdit 
 
 	if (contactToEdit == contacts.end()) {
 		cout << "Nie znaleziono takiego ID ";
