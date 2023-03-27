@@ -103,8 +103,8 @@ bool checkPassword(vector <UserStorage>::iterator i) {
 	return false;
 }
 
-int checkLastId(int a, int b) {
-	return (a > b) ? a : b;
+int checkLastId(int lastUnloadedContact, int lastContactOfActualUser) {
+	return (lastUnloadedContact > lastContactOfActualUser) ? lastUnloadedContact : lastContactOfActualUser;
 }
 
 void changePassword(vector <UserStorage>& users, int actualUser) {
@@ -134,8 +134,8 @@ int checkPaswordAndReturnUserId(vector <UserStorage> users) {
 
 	if (checkIfEmptyUsers(users))
 		return 0;
-	cout << "Podaj login:  " << endl;
 
+	cout << "Podaj login:  " << endl;
 	data.userName = getWholeLine();
 
 	for (vector <UserStorage>::iterator i = users.begin(); i < users.end(); i++) {
